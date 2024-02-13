@@ -1,6 +1,7 @@
 const express = require("express");
 const serverless = require("serverless-http");
 const bodyParser = require("body-parser");
+var cors = require("cors");
 const axios = require("axios");
 
 const port = process.env.PORT || 5000;
@@ -13,8 +14,9 @@ const auth = Buffer.from(`${userName}:${userPassword}`).toString("base64");
 
 // app.get("/", (req, res) => res.send("Vanakam.   World!"));
 app.use(bodyParser.json());
+app.use(cors());
 
-app.get("/testproxy/products/:productname", async (req, res) => {
+app.get("/testproxy/products/:productname", cors(), async (req, res) => {
   console.log("req is ====", req.params.productname);
 
   const name = req.params.productname || req.body.name;
