@@ -3,62 +3,67 @@ const serverless = require("serverless-http");
 const bodyParser = require("body-parser");
 var cors = require("cors");
 const axios = require("axios");
+ 
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5003;
 const app = express();
-
+ 
 const userName = "admin";
 const userPassword = "Anthology777";
-
+ 
 const auth = Buffer.from(`${userName}:${userPassword}`).toString("base64");
-
+ 
 // app.get("/", (req, res) => res.send("Vanakam.   World!"));
 app.use(bodyParser.json());
 app.use(cors());
-
+ 
 app.get("/testproxy/products/:productname", cors(), async (req, res) => {
   console.log("req is ====", req.params.productname);
-
+ 
   const name = req.params.productname || req.body.name;
-
+  console.log("ccc",name);
   let responseMessage;
 
+async function sonarqubeProjectName(name) {
   if (name === "operations") {
     responseMessage = await getEngageSonarQubeMetrics();
-  } else if (name === "operations_activity") {
-    responseMessage = await getEngageSonarQubeMetricsActivites();
-  } else if (name === "operations_graph") {
-    responseMessage = await getEngageSonarQubeGraphs();
+  } else if (name === "mobile") {
+    responseMessage = await getMobileOverview();
+  } else if (name === "CampusNexusStudent") {
+    responseMessage = await getCampusNexusStudent();
   } else if (name === "operations_overview") {
     responseMessage = await getEngageSonarQubeOverview();
   } else {
     responseMessage = "No matching product found";
   }
   await res.send({ content: responseMessage });
+}
+
+sonarqubeProjectName(name);
 });
-
-async function getEngageSonarQubeMetricsActivites() {
+ 
+async function getMobileOverview() {
   const response = await axios.get(
-    "https://operations.sonar.bb-fnds.com/api/measures/search_history?component=CNS329C0F36&metrics=bugs%2Ccode_smells%2Cvulnerabilities%2Creliability_rating%2Csecurity_rating%2Csqale_rating&ps=1000",
+    "https://mobile.sonar.bb-fnds.com/api/measures/component?additionalFields=period%2Cmetrics&component=my-app&metricKeys=%2Cnew_bugs%2Cnew_vulnerabilities%2Cnew_security_rating%2Cnew_security_review_rating%2Cnew_code_smells%2Cnew_coverage",
     {
       headers: { Authorization: `Basic ${auth}` },
     }
   );
-
+ 
   return response.data;
 }
-
-async function getEngageSonarQubeGraphs() {
+ 
+async function getCampusNexusStudent() {
   const response = await axios.get(
-    "https://operations.sonar.bb-fnds.com/api/measures/search_history?component=CNS329C0F36&metrics=bugs%2Ccode_smells%2Cvulnerabilities%2Creliability_rating%2Csecurity_rating%2Csqale_rating&ps=1000",
+    "https://operations.sonar.bb-fnds.com/api/measures/component?additionalFields=period%2Cmetrics&component=CNS329C0F36&metricKeys=alert_status%2Cnew_bugs%2Cnew_vulnerabilities%2Cnew_security_rating%2Cnew_security_hotspots%2Cnew_security_hotspots_reviewed%2Cnew_security_review_rating%2Cnew_code_smells",
     {
       headers: { Authorization: `Basic ${auth}` },
     }
   );
-
+ 
   return response.data;
 }
-
+ 
 async function getEngageSonarQubeMetrics() {
   const response = await axios.get(
     "https://operations.sonar.bb-fnds.com/api/project_analyses/search?project=CampusNexusPortal",
@@ -66,7 +71,7 @@ async function getEngageSonarQubeMetrics() {
       headers: { Authorization: `Basic ${auth}` },
     }
   );
-
+ 
   return response.data;
 }
 async function getEngageSonarQubeOverview() {
@@ -76,11 +81,11 @@ async function getEngageSonarQubeOverview() {
       headers: { Authorization: `Basic ${auth}` },
     }
   );
-
+ 
   return response.data;
 }
 // app.listen(port, () => console.log(`Server is listening on port ${port}.`));
-
+ 
 if (process.env.ENVIRONMENT === "production") {
   //   console.log("asdasds", app);
   exports.handler = serverless(app);
