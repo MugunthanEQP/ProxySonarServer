@@ -22,7 +22,7 @@ jobs:
       run: npm install
 
     - name: 'Run build'
-      run: npm run build
+      run: node index.js
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
